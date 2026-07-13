@@ -1,0 +1,129 @@
+const P=[["","Schleuse Holtenau",97.5],["SB","Schwartenbek",92.2],["GN","Groß Nordsee",85],["KO","Königsförde",79.8],["RA","Rade",70.6],["AU","Audorf",66.3],["SCH","Schülp",57.3],["RÜ","Rüsterbergen",55],["BR","Breiholz",48.5],["OL","Oldenbüttel",40.6],["FI","Fischerhütte",34.8],["DÜ","Dückerswisch",21.5],["KU","Kudensee",9.2],["","Schleuse Brunsbüttel",0]];
+let E=P.map(()=>({m:null,f:false})),W=P.map(()=>({m:null,f:false}));
+const ri=7,gi=2,di=11;
+const q=id=>document.getElementById(id);
+
+function parse(v){
+  v=(v||"").replace(/\D/g,"").slice(0,4);
+  if(v.length!==4)return null;
+  const h=+v.slice(0,2),m=+v.slice(2,4);
+  return h<24&&m<60?h*60+m:null;
+}
+
+function fmt(m){
+  if(m==null)return"";
+  m=((Math.round(m)%1440)+1440)%1440;
+  return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+}
+
+function raw(m){
+  if(m==null)return"";
+  m=((Math.round(m)%1440)+1440)%1440;
+  return String(Math.floor(m/60)).padStart(2,"0")+String(m%60).padStart(2,"0");
+}
+
+function clock(m){return fmt(m)||"----"}
+function diff(m){m=Math.abs(Math.round(m));return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function s(dir){return dir==="E"?E:W}
+function speed(dir){return Math.max(.1,+(dir==="E"?q("speedE").value:q("speedW").value)||6.5)}
+function route(dir){let a=P.map((_,i)=>i);return dir==="E"?a.reverse():a}
+function leg(a,b,k){return Math.abs(P[a][2]-P[b][2])/1.852/k*60}
+function after(t,r){while(t<r)t+=1440;return t}
+function shortest(a,b){let d=a-b;while(d>720)d-=1440;while(d<=-720)d+=1440;return d}
+
+function recalc(dir){
+  let S=s(dir),R=route(dir),k=speed(dir),A=R.filter(i=>S[i].f&&S[i].m!=null);
+  if(!A.length){render();save();return}
+  for(let x=0;x<A.length-1;x++){
+    let ia=A[x],ib=A[x+1],pa=R.indexOf(ia),pb=R.indexOf(ib),ta=S[ia].m,tb=after(S[ib].m,ta),tot=0,acc=0;
+    for(let p=pa;p<pb;p++)tot+=leg(R[p],R[p+1],k);
+    for(let p=pa+1;p<pb;p++){
+      acc+=leg(R[p-1],R[p],k);
+      if(!S[R[p]].f)S[R[p]].m=ta+(tb-ta)*acc/tot
+    }
+  }
+  let f=A[0],fp=R.indexOf(f);
+  for(let p=fp-1;p>=0;p--){let i=R[p],n=R[p+1];if(!S[i].f)S[i].m=S[n].m-leg(i,n,k)}
+  let l=A[A.length-1],lp=R.indexOf(l);
+  for(let p=lp+1;p<R.length;p++){let i=R[p],pr=R[p-1];if(!S[i].f)S[i].m=S[pr].m+leg(pr,i,k)}
+  render();save()
+}
+
+function names(){return{e:(q("shipE").value||"OSTSCHIFF").toUpperCase(),w:(q("shipW").value||"WESTSCHIFF").toUpperCase()}}
+function card(id,cls,main,text,extra){q(id+"Card").className="card "+cls;q(id+"Main").textContent=main;q(id+"Text").textContent=text;q(id+"Extra").textContent=extra}
+
+function statuses(){
+  let n=names(),e=E[ri].m,w=W[ri].m;
+  if(e==null||w==null)card("rue","neutral","NOCH KEINE BEWERTUNG","Beide Zeiten eingeben.","");
+  else{
+    let d=shortest(e,w),lim=+q("limit").value||15;
+    if(d>=lim)card("rue","green","🟢 WECHSEL MÖGLICH",`${n.w} +${diff(d)} vor ${n.e}`,`Reserve: ${Math.round(d)} Minuten`);
+    else if(d>0)card("rue","yellow","🟡 WECHSEL KNAPP",`${n.w} +${diff(d)} vor ${n.e}`,`Reserve: ${Math.round(d)} Minuten`);
+    else card("rue","red","🔴 WECHSEL NICHT MÖGLICH",d===0?"Beide gleichzeitig":`${n.e} +${diff(d)} vor ${n.w}`,d===0?"Reserve: 0 Minuten":`${n.w} kommt ${Math.abs(Math.round(d))} Minuten zu spät`)
+  }
+
+  e=E[di].m;w=W[di].m;
+  if(e==null||w==null)card("du","neutral","NOCH KEINE BEWERTUNG","Beide Zeiten eingeben.","");
+  else{
+    let d=shortest(w,e);
+    d>0?card("du","yellow","🟡 OSTSCHIFF WARTET",`${n.e} wartet ${diff(d)} h:min auf ${n.w}`,`Freigabe: ${clock(w)}`):
+    card("du","green","🟢 OST FREI",`${n.w} ist ${diff(d)} h:min vorher durch`,`${n.e} darf um ${clock(e)} laufen`)
+  }
+
+  e=E[gi].m;w=W[gi].m;
+  if(e==null||w==null)card("gn","neutral","NOCH KEINE BEWERTUNG","Beide Zeiten eingeben.","");
+  else{
+    let d=shortest(e,w);
+    d>0?card("gn","yellow","🟡 WESTSCHIFF WARTET",`${n.w} wartet ${diff(d)} h:min auf ${n.e}`,`Freigabe: ${clock(e)}`):
+    card("gn","green","🟢 WEST FREI",`${n.e} ist ${diff(d)} h:min vorher durch`,`${n.w} darf um ${clock(w)} laufen`)
+  }
+
+  q("rueCard").classList.toggle("hidden",!q("showRue").checked);
+  q("duCard").classList.toggle("hidden",!q("showDu").checked);
+  q("gnCard").classList.toggle("hidden",!q("showGn").checked)
+}
+
+function bindTimeInput(el){
+  el.onfocus=e=>{
+    const d=e.target.dataset.d,i=+e.target.dataset.i;
+    e.target.value=raw(s(d)[i].m);
+    e.target.select();
+  };
+  el.oninput=e=>e.target.value=e.target.value.replace(/\D/g,"").slice(0,4);
+  el.onblur=e=>{
+    const d=e.target.dataset.d,i=+e.target.dataset.i,S=s(d),v=parse(e.target.value);
+    S[i]=v==null?{m:null,f:false}:{m:v,f:true};
+    recalc(d);
+  };
+  el.onkeydown=e=>{
+    if(e.key==="Enter"){e.preventDefault();e.target.blur();}
+  };
+}
+
+function render(){
+  statuses();
+  q("body").innerHTML="";
+  P.forEach((p,i)=>{
+    let tr=document.createElement("tr");
+    if(i===ri)tr.className="rue";
+    let label=p[0]?`<b>${p[0]}</b> – ${p[1]}`:`<b>${p[1]}</b>`;
+    tr.innerHTML=`<td>${String(p[2]).replace(".",",")}</td><td class="place">${label}</td><td class="${E[i].f?"fixed":"calc"}"><input class="time" data-d="E" data-i="${i}" value="${fmt(E[i].m)}"></td><td>${E[i].f?"Fixpunkt":E[i].m!=null?"berechnet":""}</td><td class="${W[i].f?"fixed":"calc"}"><input class="time" data-d="W" data-i="${i}" value="${fmt(W[i].m)}"></td><td>${W[i].f?"Fixpunkt":W[i].m!=null?"berechnet":""}</td>`;
+    q("body").appendChild(tr)
+  });
+  document.querySelectorAll(".time").forEach(bindTimeInput);
+}
+
+function save(){localStorage.setItem("nok041",JSON.stringify({E,W,se:q("shipE").value,sw:q("shipW").value,ve:q("speedE").value,vw:q("speedW").value,l:q("limit").value,sr:q("showRue").checked,sd:q("showDu").checked,sg:q("showGn").checked}))}
+function load(){try{let x=JSON.parse(localStorage.getItem("nok041")||"null");if(x){E=x.E||E;W=x.W||W;q("shipE").value=x.se||"";q("shipW").value=x.sw||"";q("speedE").value=x.ve||"6.5";q("speedW").value=x.vw||"6.5";q("limit").value=x.l||"15";q("showRue").checked=x.sr!==false;q("showDu").checked=x.sd!==false;q("showGn").checked=x.sg!==false}}catch{}}
+
+["shipE","shipW"].forEach(id=>q(id).oninput=()=>{q(id).value=q(id).value.toUpperCase();render();save()});
+["showRue","showDu","showGn","limit"].forEach(id=>q(id).onchange=()=>{render();save()});
+q("speedE").onchange=()=>recalc("E");
+q("speedW").onchange=()=>recalc("W");
+q("clearE").onclick=()=>{E=P.map(()=>({m:null,f:false}));render();save()};
+q("clearW").onclick=()=>{W=P.map(()=>({m:null,f:false}));render();save()};
+q("unlock").onclick=()=>{E.forEach(x=>x.f=false);W.forEach(x=>x.f=false);render();save()};
+q("reset").onclick=()=>{localStorage.removeItem("nok041");location.reload()};
+
+load();
+render();
