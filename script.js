@@ -2,8 +2,34 @@ const P=[["","Schleuse Holtenau",97.5],["SB","Schwartenbek",92.2],["GN","Groß N
 let E=P.map(()=>({m:null,f:false})),W=P.map(()=>({m:null,f:false}));
 const ri=7,gi=2,di=11;
 const q=id=>document.getElementById(id);
-function parse(v){v=(v||"").replace(/\D/g,"").slice(0,4);if(v.length!==4)return null;let h=+v.slice(0,2),m=+v.slice(2);return h<24&&m<60?h*60+m:null}
-function fmt(m){if(m==null)return"";m=((Math.round(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+String(m%60).padStart(2,"0")}
+function function parse(v){
+
+    v=(v||"").replace(/\D/g,"");
+
+    if(v.length===3)
+        v="0"+v;
+
+    if(v.length!==4)
+        return null;
+
+    let h=+v.substring(0,2);
+    let m=+v.substring(2,4);
+
+    if(h>23 || m>59)
+        return null;
+
+    return h*60+m;
+}
+function fmt(m){
+    if(m==null) return "";
+
+    m=((Math.round(m)%1440)+1440)%1440;
+
+    const h = String(Math.floor(m/60)).padStart(2,"0");
+    const min = String(m%60).padStart(2,"0");
+
+    return h + ":" + min;
+}
 function clock(m){let v=fmt(m);return v?v.slice(0,2)+":"+v.slice(2):"----"}
 function diff(m){m=Math.abs(Math.round(m));return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
 function s(dir){return dir==="E"?E:W}
