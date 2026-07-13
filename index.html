@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NOK Navigator 0.4.1</title>
+<title>NOK Navigator 0.4.0</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-<header><div><h1>🚢 NOK Navigator</h1><small>Version 0.4.1</small></div><button id="reset">Alles zurücksetzen</button></header>
+<header><h1>🚢 NOK Navigator</h1><button id="reset">Alles zurücksetzen</button></header>
 
 <section class="ships">
 <div class="panel east"><h2>➡ Ostgehend</h2><input id="shipE" placeholder="OSTSCHIFF"><input id="speedE" type="number" step="0.1" value="6.5"><span>kn</span></div>
@@ -28,7 +28,7 @@
 </section>
 
 <section class="panel">
-<p>Zeiten mit vier Ziffern ohne Doppelpunkt eingeben, z. B. <b>1557</b>. Nach Verlassen des Feldes wird <b>15:57</b> angezeigt.</p>
+<p>Zeiten vierstellig ohne Doppelpunkt eingeben, z. B. <b>1557</b>. Jede Eingabe wird zum Fixpunkt.</p>
 <div class="tablewrap"><table><thead><tr><th>km</th><th>Ort</th><th>Ost</th><th>Status</th><th>West</th><th>Status</th></tr></thead><tbody id="body"></tbody></table></div>
 <div class="buttons"><button id="clearE">Ost löschen</button><button id="clearW">West löschen</button><button id="unlock">Fixpunkte lösen</button></div>
 </section>
