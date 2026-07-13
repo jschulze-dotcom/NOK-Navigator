@@ -1,37 +1,96 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NOK Navigator 0.4.2</title>
-<link rel="stylesheet" href="style-0.4.2.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>NOK Navigator 1.0</title>
+  <link rel="stylesheet" href="style-v1.css">
 </head>
 <body>
-<main>
-<header><div><h1>🚢 NOK Navigator</h1><small>Version 0.4.2</small></div><button id="reset">Alles zurücksetzen</button></header>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>🚢 NOK Navigator</h1>
+        <div class="version">Version 1.0</div>
+      </div>
+      <button id="resetAll" class="btn btn-secondary">Alles zurücksetzen</button>
+    </header>
 
-<section class="ships">
-<div class="panel east"><h2>➡ Ostgehend</h2><input id="shipE" placeholder="OSTSCHIFF"><input id="speedE" type="number" step="0.1" value="6.5"><span>kn</span></div>
-<div class="panel west"><h2>⬅ Westgehend</h2><input id="shipW" placeholder="WESTSCHIFF"><input id="speedW" type="number" step="0.1" value="6.5"><span>kn</span></div>
-</section>
+    <section class="ship-grid">
+      <article class="panel ship-panel east-panel">
+        <h2>➡ Ostgehend</h2>
+        <label>Schiffsname
+          <input id="shipEast" class="ship-name" placeholder="OSTSCHIFF">
+        </label>
+        <label>Geschwindigkeit (kn)
+          <input id="speedEast" type="number" min="1" max="15" step="0.1" value="6.5">
+        </label>
+      </article>
 
-<section class="panel toggles">
-<label><input id="showRue" type="checkbox" checked> Rüsterbergen</label>
-<label><input id="showDu" type="checkbox" checked> Dückerswisch Ost</label>
-<label><input id="showGn" type="checkbox" checked> Groß Nordsee West</label>
-</section>
+      <article class="panel ship-panel west-panel">
+        <h2>⬅ Westgehend</h2>
+        <label>Schiffsname
+          <input id="shipWest" class="ship-name" placeholder="WESTSCHIFF">
+        </label>
+        <label>Geschwindigkeit (kn)
+          <input id="speedWest" type="number" min="1" max="15" step="0.1" value="6.5">
+        </label>
+      </article>
+    </section>
 
-<section class="cards">
-<article id="rueCard" class="card neutral"><h3>⚓ RÜSTERBERGEN</h3><h2 id="rueMain">NOCH KEINE BEWERTUNG</h2><p id="rueText">Beide Zeiten eingeben.</p><p id="rueExtra"></p><label>Mindestreserve <input id="limit" type="number" value="15"> Min.</label></article>
-<article id="duCard" class="card neutral"><h3>⚓ DÜCKERSWISCH – OSTGEHEND</h3><h2 id="duMain">NOCH KEINE BEWERTUNG</h2><p id="duText">Beide Zeiten eingeben.</p><p id="duExtra"></p></article>
-<article id="gnCard" class="card neutral"><h3>⚓ GROSS NORDSEE – WESTGEHEND</h3><h2 id="gnMain">NOCH KEINE BEWERTUNG</h2><p id="gnText">Beide Zeiten eingeben.</p><p id="gnExtra"></p></article>
-</section>
+    <section class="panel chooser">
+      <label><input id="showRue" type="checkbox" checked> Rüsterbergen</label>
+      <label><input id="showDu" type="checkbox" checked> Dückerswisch Ost</label>
+      <label><input id="showGn" type="checkbox" checked> Groß Nordsee West</label>
+    </section>
 
-<section class="panel">
-<p>Zeiten mit vier Ziffern ohne Doppelpunkt eingeben, z. B. <b>1557</b>. Nach Verlassen des Feldes wird <b>15:57</b> angezeigt.</p>
-<div class="tablewrap"><table><thead><tr><th>km</th><th>Ort</th><th>Ost</th><th>Status</th><th>West</th><th>Status</th></tr></thead><tbody id="body"></tbody></table></div>
-<div class="buttons"><button id="clearE">Ost löschen</button><button id="clearW">West löschen</button><button id="unlock">Fixpunkte lösen</button></div>
-</section>
-</main>
-<script src="app-0.4.2.js"></script>
-</body></html>
+    <section class="status-grid">
+      <article id="rueCard" class="status-card neutral">
+        <div class="status-kicker">⚓ RÜSTERBERGEN</div>
+        <div id="rueMain" class="status-main">NOCH KEINE BEWERTUNG</div>
+        <div id="rueDetail" class="status-detail">Beide Rüsterbergen-Zeiten eingeben.</div>
+        <div id="rueExtra" class="status-extra"></div>
+        <label class="inline-setting">Mindestreserve
+          <input id="rueLimit" type="number" min="0" max="120" step="1" value="15">
+          <span>Min.</span>
+        </label>
+      </article>
+
+      <article id="duCard" class="status-card neutral">
+        <div class="status-kicker">⚓ DÜCKERSWISCH – OSTGEHEND</div>
+        <div id="duMain" class="status-main">NOCH KEINE BEWERTUNG</div>
+        <div id="duDetail" class="status-detail">Beide Dückerswisch-Zeiten eingeben.</div>
+        <div id="duExtra" class="status-extra"></div>
+      </article>
+
+      <article id="gnCard" class="status-card neutral">
+        <div class="status-kicker">⚓ GROSS NORDSEE – WESTGEHEND</div>
+        <div id="gnMain" class="status-main">NOCH KEINE BEWERTUNG</div>
+        <div id="gnDetail" class="status-detail">Beide Groß-Nordsee-Zeiten eingeben.</div>
+        <div id="gnExtra" class="status-extra"></div>
+      </article>
+    </section>
+
+    <section class="panel schedule-panel">
+      <p class="help">Zeit vierstellig ohne Doppelpunkt eingeben, z. B. <b>1557</b>. Nach Verlassen des Feldes erscheint <b>15:57</b>. Jede manuelle Eingabe wird zum Fixpunkt.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>km</th><th>Ort</th><th class="east-head">Ost</th><th>Status</th><th class="west-head">West</th><th>Status</th></tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+      <div id="mobileSchedule" class="mobile-schedule"></div>
+      <div class="button-row">
+        <button id="clearEast" class="btn btn-secondary">Ost löschen</button>
+        <button id="clearWest" class="btn btn-secondary">West löschen</button>
+        <button id="unlockAll" class="btn btn-secondary">Fixpunkte lösen</button>
+      </div>
+    </section>
+  </main>
+  <script src="app-v1.js"></script>
+</body>
+</html>
