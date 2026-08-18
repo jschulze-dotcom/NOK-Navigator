@@ -1,7 +1,7 @@
 {
   "name": "NOK Navigator",
   "short_name": "NOK Navigator",
-  "description": "Vorplotter und Begegnungsplanung für den Nord-Ostsee-Kanal",
+  "description": "Vorplotter und Begegnungsplanung für den Nord-Ostsee-Kanal – BRB km 1,6",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
